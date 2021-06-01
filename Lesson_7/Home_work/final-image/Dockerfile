@@ -10,7 +10,7 @@ ENV PATH=$CATALINA_HOME/bin:$PATH
 
 # install base soft
 RUN apt update && \
-    apt install default-jre -y \
+    apt install default-jre -y && \
     rm -rf /var/cache/apt/archives/*
 
 # get Tomcat and app from image build
