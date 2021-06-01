@@ -15,6 +15,10 @@ RUN apt update && \
 
 # get Tomcat and app from image build
 WORKDIR "$CATALINA_HOME"
+RUN wget -O tomcat.tar.gz "https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz" && \
+    tar -xf tomcat.tar.gz --strip-components=1 && \
+    rm -rf tomcat.tar.gz
+
 
 # run tomcat
 CMD ["catalina.sh", "run"]
