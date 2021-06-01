@@ -20,4 +20,6 @@ RUN tar -xf tomcat.tar.gz --strip-components=1 && \
 WORKDIR /home/user/
 RUN git clone https://github.com/Artur-/Solitaire.git && \
     cd /home/user/Solitaire/ && \
-    mvn package
+    mvn package && \
+    mv /home/user/Solitaire/target/*.war /home/user/Solitaire/target/solitaire.war && \
+    rm -rf /home/user/Solitaire/target/!(*.war)
