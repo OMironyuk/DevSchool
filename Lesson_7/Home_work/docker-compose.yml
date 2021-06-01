@@ -1,0 +1,23 @@
+---
+version '3.8'
+services:
+  buildimage:
+    build:
+      context: ./build-image
+    volumes:
+        - type: volume
+          source: share
+          target: /home/user/Solitaire/target/*.war
+
+  app:
+    build:
+      context: ./final-image
+    volumes:
+        - type: volume
+          source: share
+          target: /usr/local/tomcat/webapps/solitaire.war
+      ports:
+        - "8080:8080"
+
+volumes:
+  share:
