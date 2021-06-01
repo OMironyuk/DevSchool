@@ -22,4 +22,4 @@ RUN git clone https://github.com/Artur-/Solitaire.git && \
     cd /home/user/Solitaire/ && \
     mvn package && \
     mv /home/user/Solitaire/target/*.war /home/user/Solitaire/target/solitaire.war && \
-    rm -rf /home/user/Solitaire/target/!(*.war)
+    rm -rf /home/user/Solitaire/target/![*.war]
