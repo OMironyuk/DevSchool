@@ -10,14 +10,16 @@ services:
         target: /home/user/Solitaire/target/
 
   app:
-    build:
-      context: ./final-image
+    image: tomcat:alpine
     volumes:
       - type: volume
         source: share
         target: /usr/local/tomcat/webapps/
     ports:
         - "8080:8080"
+    depends_on:
+      - buildimage
+
 
 volumes:
   share:
