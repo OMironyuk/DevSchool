@@ -1,4 +1,4 @@
-FROM ubuntu:21.10 AS build
+FROM ubuntu:21.10
 
 # set timezone
 ENV TZ=Europe/Moscow
