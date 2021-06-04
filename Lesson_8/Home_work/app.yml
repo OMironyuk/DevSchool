@@ -41,7 +41,7 @@
 
     - name: Build an image
       docker_image:
-        path: ./build-image
+        path: /home/user/build-image/
         name: build_image
     - name: Start container
       docker_container:
