@@ -4,16 +4,20 @@
   become: yes
 
   tasks:
+  - name: Ensure python is apsent
+    apt:
+      name: python
+      state: apsent
 
-    - name: Ensure python is apsent
-      apt:
-        name: python
-        state: apsent
+  - name: Ensure python-pip is apsent
+    apt:
+      name: python-pip
+      state: apsent
 
-    - name: Ensure python-pip is apsent
-      apt:
-        name: python-pip
-        state: apsent
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker-py
+      state: apsent
 
   - name: Ensure python3 is present
     apt:
@@ -22,8 +26,13 @@
 
   - name: Ensure python-pip is apsent
     apt:
-      name: python-pip
-      state: apsent
+      name: python-pip3
+      state: present
+
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker
+      state: present
 
 
   - name: Enshure docker package is present
