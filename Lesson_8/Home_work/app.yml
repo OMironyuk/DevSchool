@@ -4,6 +4,11 @@
   become: yes
 
   tasks:
+  - name: Ensure python3 is present
+    apt:
+      name: python38
+      state: present
+
   - name: Ensure python-pip is present
     apt:
       name: python-pip
