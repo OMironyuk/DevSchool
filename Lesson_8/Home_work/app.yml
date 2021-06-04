@@ -1,4 +1,4 @@
-___
+---
 - name: install Docker
   hosts: 'build:app'
   become: yes
@@ -23,7 +23,23 @@ ___
   become: yes
 
   tasks:
-    - name: Build an image and push it to a private repo
+    - name: create build directory
+      file:
+        path: /home/user/build-image
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: copy Dockerfile
+      copy:
+        src: ./build-image
+        dest: /home/user/build-image/Dockerfile
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Build an image
       docker_image:
         path: ./build-image
         name: build_image
