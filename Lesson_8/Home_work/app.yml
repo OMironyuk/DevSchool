@@ -4,15 +4,27 @@
   become: yes
 
   tasks:
+
+    - name: Ensure python is apsent
+      apt:
+        name: python
+        state: apsent
+
+    - name: Ensure python-pip is apsent
+      apt:
+        name: python-pip
+        state: apsent
+
   - name: Ensure python3 is present
     apt:
       name: python38
       state: present
 
-  - name: Ensure python-pip is present
+  - name: Ensure python-pip is apsent
     apt:
       name: python-pip
-      state: present
+      state: apsent
+
 
   - name: Enshure docker package is present
     apt:
