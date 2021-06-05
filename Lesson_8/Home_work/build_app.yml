@@ -1,1 +1,50 @@
 ---
+- name: Build solitaire
+  hosts: build
+  become: yes
+
+  tasks:
+  - name: Ensure maven is present
+    apt:
+      name: maven
+      state: present
+
+  - name: Ensure default-jdk is present
+    apt:
+      name: default-jdk
+      state: present
+
+  - name: Git clone repo
+   git:
+     repo: https://github.com/Artur-/Solitaire.git
+     dest: /home/user
+
+  - name: create maven artifact
+    shell: mvn package
+    args:
+      chdir: /home/user/Solitaire
+
+
+- name: Run solitaire
+  hosts: app
+  become: yes
+
+  tasks:
+  # - name: Download tomcat
+  #  get_url:
+  #   url: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
+    #  dest: /usr/local/tomcat/apache-tomcat-9.0.46.tar.gz
+  - name: Unarchive a file that is already on the remote machine
+    unarchive:
+      src: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
+      dest: /usr/local/tomcat
+      remote_src: yes
+
+  - name: Transfer file from build to app
+    synchronize:
+      src: /home/user/Solitaire/target/*.war
+      dest: /usr/local/tomcat/webapps/solitaire.war
+    delegate_to: build
+
+  - name: Run tomcat
+    shell: /usr/local/tomcat/catalina.sh
