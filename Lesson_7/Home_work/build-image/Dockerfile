@@ -6,7 +6,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # install base soft
 RUN apt update && \
-    apt install default-jdk maven git wget -y
+    apt install default-jdk maven git -y
 
 # get app
 WORKDIR /home/user/
