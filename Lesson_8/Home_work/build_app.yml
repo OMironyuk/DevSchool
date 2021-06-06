@@ -53,7 +53,7 @@
       extra_opts: [--strip-components=1]
       remote_src: yes
 
-  - name: Transfer file from build to app
+  - name: Transfer artifact from Build to App
     copy:
       src: /home/user/solitaire.war
       dest: /usr/local/tomcat/webapps/
