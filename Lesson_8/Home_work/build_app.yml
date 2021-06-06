@@ -26,8 +26,9 @@
 
   - name: Copy artifact from Build to local
     fetch:
-      src: /home/user/Solitaire/target/*.war
-      dest: /home/user/Solitaire.war
+      src: /home/user/Solitaire/target/solitaire-1.1-SNAPSHOT.warbu
+      dest: /home/user/solitaire.war
+      flat: yes
 
 
 - name: Run Solitaire
@@ -54,7 +55,7 @@
 
   - name: Transfer file from build to app
     copy:
-      src: /home/user/Solitaire.war
+      src: /home/user/solitaire.war
       dest: /usr/local/tomcat/webapps/
 
   - name: Run tomcat
