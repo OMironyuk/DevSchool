@@ -17,39 +17,33 @@
   - name: Git clone repo
     git:
      repo: https://github.com/Artur-/Solitaire.git
-     dest: /home/user
+     dest: /home/user/Solitaire
 
-  - name: create maven artifact
+  - name: Create maven artifact
     shell: mvn package
     args:
       chdir: /home/user/Solitaire
 
+  - name: Copy artifact from Build to local
+    fetch:
+      src: /home/user/Solitaire/target/*.war
+      dest: /home/user/Solitaire.war
 
-- name: Run solitaire
+
+- name: Run Solitaire
   hosts: app
   become: yes
 
   tasks:
-  # - name: Download tomcat
-  #  get_url:
-  #   url: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
-    #  dest: /usr/local/tomcat/apache-tomcat-9.0.46.tar.gz
-  - name: create tomcat directory
+  - name: Ensure default-jre is present
+    apt:
+      name: default-jre
+      state: present
+
+  - name: Create tomcat directory
     file:
       path: /usr/local/tomcat
       state: directory
-
- # - name: Download apache-tomcat-9.0.46.tar.gz
-  #  get_url:
-   #   url: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
-    #  dest: /usr/local/tomcat/tomcat.tar.gz
-
-  #- name: Unarchive a file that is already on the remote machine
-   # unarchive:
-    #  src: /usr/local/tomcat/tomcat.tar.gz
-     # dest: /usr/local/tomcat
-      #remote_src: yes
-
 
   - name: Unarchive Tomcat
     unarchive:
@@ -59,10 +53,9 @@
       remote_src: yes
 
   - name: Transfer file from build to app
-    synchronize:
-      src: /home/user/Solitaire/target/*.war
-      dest: /usr/local/tomcat/webapps/solitaire.war
-    delegate_to: build
+    copy:
+      src: /home/user/Solitaire.war
+      dest: /usr/local/tomcat/webapps/
 
   - name: Run tomcat
-    shell: /usr/local/tomcat/catalina.sh
+    command: nohup /usr/local/tomcat/bin/startup.sh
