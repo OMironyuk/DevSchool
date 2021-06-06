@@ -39,22 +39,23 @@
       path: /usr/local/tomcat
       state: directory
 
-  - name: Download apache-tomcat-9.0.46.tar.gz
-    get_url:
-      url: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
-      dest: /usr/local/tomcat/tomcat.tar.gz
+ # - name: Download apache-tomcat-9.0.46.tar.gz
+  #  get_url:
+   #   url: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
+    #  dest: /usr/local/tomcat/tomcat.tar.gz
 
-  - name: Unarchive a file that is already on the remote machine
+  #- name: Unarchive a file that is already on the remote machine
+   # unarchive:
+    #  src: /usr/local/tomcat/tomcat.tar.gz
+     # dest: /usr/local/tomcat
+      #remote_src: yes
+
+
+  - name: Unarchive Tomcat
     unarchive:
-      src: /usr/local/tomcat/tomcat.tar.gz
+      src: https://apache-mirror.rbc.ru/pub/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
       dest: /usr/local/tomcat
-      remote_src: yes
-
-
-  - name: Unarchive a file that is already on the remote machine
-    unarchive:
-      src: https://mirror.linux-ia64.org/apache/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
-      dest: /usr/local/tomcat
+      extra_opts: [--strip-components=1]
       remote_src: yes
 
   - name: Transfer file from build to app
