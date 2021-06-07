@@ -57,6 +57,14 @@
     openssh_keypair:
       path: /root/.ssh/id_ssh_rsa
 
+  - name: Set authorized key, removing all the authorized keys already set
+    authorized_key:
+      user: root
+      key: '{{ item }}'
+      state: present
+    delegate_to: build
+
+
   - name: Transfer file from build to app
     synchronize:
       src: /home/user/Solitaire/target/*.war
