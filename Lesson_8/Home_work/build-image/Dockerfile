@@ -31,5 +31,6 @@ RUN mkdir -p /home/user/ && \
 
 FROM tomcat:alpine
 
+RUN rm -rf /usr/local/tomcat/webapps/*
 COPY --from=build /home/user/Solitaire/target/*.war /usr/local/tomcat/webapps/solitaire.war
 
