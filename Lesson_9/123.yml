@@ -11,6 +11,6 @@
 
     - name: Change index.html
       lineinfile:
-        path: /var/www/html/index/html
+        path: /var/www/html/index.html
         regexp: '^'
         line: <p><script> document.write (new Date().toLocaleDateString()); </script></p>
