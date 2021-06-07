@@ -34,17 +34,11 @@
       file:
         path: /home/user/build-image
         state: directory
-        owner: root
-        group: root
-        mode: '0755'
 
     - name: copy Dockerfile
       copy:
         src: ./build-image/Dockerfile
         dest: /home/user/build-image/
-        owner: root
-        group: root
-        mode: '0644'
 
     - name: docker login
       docker_login:
