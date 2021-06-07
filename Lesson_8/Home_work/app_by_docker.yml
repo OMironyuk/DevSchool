@@ -7,7 +7,7 @@
 
   - name: Ensure python3 is present
     apt:
-      name: python38
+      name: python3
       state: present
 
   - name: Ensure python3-pip is present
@@ -48,7 +48,7 @@
 
     - name: docker login
       docker_login:
-        username: omironyuk
+        username: ommironyuk
         password: 9b1397e7-faab-464e-982e-062a1fac6eed
         email: 1234m4321@mail.ru
 
@@ -56,7 +56,7 @@
       docker_image:
         path: /home/user/build-image/
         name: solitaire:v1
-        repository: omironyuk/solitaire:v1
+        repository: ommironyuk/solitaire:v1
         push: yes
 
 
@@ -64,10 +64,12 @@
   hosts: app
   become: yes
 
+  tasks:
+
     - name: Start container
       docker_container:
         name: solitaire
-        image: omironyuk/solitaire:v1
+        image: ommironyuk/solitaire:v1
         ports:
           - "8080:8080"
         state: started

@@ -27,7 +27,7 @@ RUN mkdir -p /home/user/ && \
     cd /home/user/ && \
     git clone https://github.com/Artur-/Solitaire.git && \
     cd /home/user/Solitaire/ && \
-    mvn package && \
+    mvn packageАш
 
 FROM tomcat:alpine
 
