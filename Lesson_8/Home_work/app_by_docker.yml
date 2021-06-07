@@ -75,10 +75,10 @@
       state: present
 
   - name: Start container
-      docker_container:
-        name: solitaire
-        image: ommironyuk/solitaire:v1
-        ports:
-          - "8080:8080"
-        state: started
+    docker_container:
+      name: solitaire
+      image: ommironyuk/solitaire:v1
+      ports:
+        - "8080:8080"
+      state: started
 
