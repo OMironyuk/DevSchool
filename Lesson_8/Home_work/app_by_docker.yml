@@ -40,18 +40,35 @@
 
     - name: copy Dockerfile
       copy:
-        src: ./build-image
-        dest: /home/user/build-image/Dockerfile
+        src: ./build-image/Dockerfile
+        dest: /home/user/build-image/
         owner: root
         group: root
         mode: '0644'
 
+    - name: docker login
+      docker_login:
+        username: omironyuk
+        password: 9b1397e7-faab-464e-982e-062a1fac6eed
+        email: 1234m4321@mail.ru
+
     - name: Build an image
       docker_image:
         path: /home/user/build-image/
-        name: build_image
+        name: solitaire:v1
+        repository: omironyuk/solitaire:v1
+        push: yes
+
+
+- name: create build image
+  hosts: app
+  become: yes
+
     - name: Start container
       docker_container:
-        name: app
-        image: build_image
+        name: solitaire
+        image: omironyuk/solitaire:v1
+        ports:
+          - "8080:8080"
         state: started
+
