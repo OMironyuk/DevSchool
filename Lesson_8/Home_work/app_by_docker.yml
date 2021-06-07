@@ -1,10 +1,10 @@
 ---
-- name: install Docker
-  hosts: 'build:app'
+- name: create build image
+  hosts: build
   become: yes
 
-  tasks:
 
+  tasks:
   - name: Ensure python3 is present
     apt:
       name: python3
@@ -25,33 +25,28 @@
       name: docker.io
       state: present
 
-- name: create build image
-  hosts: build
-  become: yes
+  - name: create build directory
+    file:
+      path: /home/user/build-image
+      state: directory
 
-  tasks:
-    - name: create build directory
-      file:
-        path: /home/user/build-image
-        state: directory
+  - name: copy Dockerfile
+    copy:
+      src: ./build-image/Dockerfile
+      dest: /home/user/build-image/
 
-    - name: copy Dockerfile
-      copy:
-        src: ./build-image/Dockerfile
-        dest: /home/user/build-image/
+  - name: docker login
+    docker_login:
+      username: ommironyuk
+      password: 9b1397e7-faab-464e-982e-062a1fac6eed
+      email: 1234m4321@mail.ru
 
-    - name: docker login
-      docker_login:
-        username: ommironyuk
-        password: 9b1397e7-faab-464e-982e-062a1fac6eed
-        email: 1234m4321@mail.ru
-
-    - name: Build an image
-      docker_image:
-        path: /home/user/build-image/
-        name: solitaire:v1
-        repository: ommironyuk/solitaire:v1
-        push: yes
+  - name: Build an image
+    docker_image:
+      path: /home/user/build-image/
+      name: solitaire:v1
+      repository: ommironyuk/solitaire:v1
+      push: yes
 
 
 - name: create build image
@@ -59,8 +54,27 @@
   become: yes
 
   tasks:
+  - name: Ensure python3 is present
+    apt:
+      name: python3
+      state: present
 
-    - name: Start container
+  - name: Ensure python3-pip is present
+    apt:
+      name: python3-pip
+      state: present
+
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker
+      state: present
+
+  - name: Enshure docker package is present
+    apt:
+      name: docker.io
+      state: present
+
+  - name: Start container
       docker_container:
         name: solitaire
         image: ommironyuk/solitaire:v1
