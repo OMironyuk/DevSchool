@@ -1,0 +1,24 @@
+---
+- name: templating
+  hosts: all
+  become: yes
+
+  vars:
+          source_folder: ./
+   dest_folder: /var/www/html
+
+  tasks:
+  - name: Ensure nginx package is present
+    apt:
+      name: nginx
+      state: present
+
+  - name: templating
+    template: src= {{ source_folder }}/index.j2 dest={{ dest_folder }}/index.html mode=0555
+    notify:
+      - restart nginx
+
+  handlers:
+  - name: restart nginx
+    service: name=nginx state=restarted    
+
