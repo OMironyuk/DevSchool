@@ -13,10 +13,10 @@
     repo: https://github.com/Artur-/Solitaire.git
     dest: {{app_repo_dir}}
 
-  - name: Create maven artifact
-    command: mvn package
-    args:
-      chdir: {{app_repo_dir}}
+- name: Create maven artifact
+  command: mvn package
+  args:
+    chdir: {{app_repo_dir}}
 
 - name: Copy artifact from Build to local
   fetch:
