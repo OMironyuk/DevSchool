@@ -2,7 +2,7 @@
 # tasks file for build
 - name: Ensure package is present
   apt:
-    name: {{item}}
+    name: "{{item}}"
     state: present
     with_items:
       - default-jdk
@@ -11,16 +11,16 @@
 - name: Git clone repo
   git:
     repo: https://github.com/Artur-/Solitaire.git
-    dest: {{app_repo_dir}}
+    dest: "{{app_repo_dir}}"
 
 - name: Create maven artifact
   command: mvn package
   args:
-    chdir: {{app_repo_dir}}
+    chdir: "{{app_repo_dir}}"
 
 - name: Copy artifact from Build to local
   fetch:
-    src: {{app_repo_dir}}/target/solitaire-1.1-SNAPSHOT.war
+    src: "{{app_repo_dir}}/target/solitaire-1.1-SNAPSHOT.war"
     dest: /home/user/solitaire.war
     flat: yes
 
