@@ -21,8 +21,8 @@
   copy:
     src: /home/user/solitaire.war
     dest: "{{tomcat_dir}}/webapps/"
-    notify:
-      - restart tomcat
+  notify:
+    - restart tomcat
 
 - name: Run tomcat
   command: "{{tomcat_dir}}/bin/startup.sh" #nohup
