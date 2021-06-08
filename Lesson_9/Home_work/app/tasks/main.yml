@@ -25,4 +25,4 @@
     - restart tomcat
 
 - name: Run tomcat
-  command: "{{tomcat_dir}}/bin/startup.sh" #nohup
+  command: nohub "{{tomcat_dir}}/bin/startup.sh" #nohup
