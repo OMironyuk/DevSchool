@@ -1,0 +1,15 @@
+---
+- name: Build app
+  hosts: build
+  become: yes
+
+  roles:
+    - build
+
+- name: Run app
+  hosts: app
+  become: yes
+
+  roles:
+    - app
+
