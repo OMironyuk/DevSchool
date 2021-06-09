@@ -5,6 +5,9 @@
 
   roles:
     - build
+    - role: ssh_auth
+      vars:
+        host_name: app
 
 - name: Run app
   hosts: app
@@ -12,4 +15,7 @@
 
   roles:
     - app
+    - role: ssh_auth
+      vars:
+        host_name: app
 
