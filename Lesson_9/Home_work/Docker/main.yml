@@ -4,6 +4,7 @@
   become: yes
 
   roles:
+    - docker
     - build
 
 - name: Run app
@@ -11,5 +12,6 @@
   become: yes
 
   roles:
+    - docker
     - app
 

@@ -1,26 +1,14 @@
 ---
 # tasks file for build
-- name: Ensure package is present
-  apt:
-    name: "{{item}}"
-    state: present
-  with_items:
-    - default-jdk
-    - maven
+- name: docker login
+  docker_login:
+    username: ommironyuk
+    password: 9b1397e7-faab-464e-982e-062a1fac6eed
+    email: 1234m4321@mail.ru
 
-- name: Git clone repo
-  git:
-    repo: https://github.com/Artur-/Solitaire.git
-    dest: "{{app_repo_dir}}"
-
-- name: Create maven artifact
-  command: mvn package
-  args:
-    chdir: "{{app_repo_dir}}"
-
-- name: Copy artifact from Build to local
-  fetch:
-    src: "{{app_repo_dir}}/target/solitaire-1.1-SNAPSHOT.war"
-    dest: /home/user/solitaire.war
-    flat: yes
-
+- name: Build an image
+  docker_image:
+    path: ./
+    name: solitaire:v1
+    repository: ommironyuk/solitaire:v1
+    push: yes
