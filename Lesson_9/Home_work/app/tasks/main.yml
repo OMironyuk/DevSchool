@@ -17,6 +17,14 @@
     extra_opts: [--strip-components=1]
     remote_src: yes
 
+- name: Copy tomcat.service
+  copy:
+    src: tomcat.service
+    dest: /etc/systemd/system/tomcat.service
+    #mode: 0555
+  notify:
+    - daemon-reload
+
 - name: Transfer artifact from Build to App
   copy:
     src: /home/user/solitaire.war
@@ -24,5 +32,5 @@
   notify:
     - restart tomcat
 
-- name: Run tomcat
-  command: nohub "{{tomcat_dir}}/bin/startup.sh" #nohup
+#- name: Run tomcat
+ # command: nohub "{{tomcat_dir}}/bin/startup.sh" #nohup
