@@ -1,10 +1,12 @@
 ---
 # handlers file for app
+- name: daemon-reload
+  systemd:
+    daemon_reload: yes
+
 - name: restart tomcat
   service:
     name: tomcat
     state: restarted
 
-- name: daemon-reload
-  systemd:
-    daemon_reload: yes
+
