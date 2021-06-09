@@ -2,13 +2,14 @@
 # tasks file for build
 - name: Generate ssh key
   openssh_keypair:
-    owner: root
+    лкнowner: root
     path: /root/.ssh/id_rsa
+  register: keypair
 
 - name: Set authorized key taken from file
   authorized_key:
     user: root
     state: present
-    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    key: "{{ keypair.public_key }}"
   delegate_to: "{{host_name}}"
 
