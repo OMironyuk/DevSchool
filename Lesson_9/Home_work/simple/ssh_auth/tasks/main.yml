@@ -2,9 +2,12 @@
 # tasks file for build
 - name: Generate ssh key
   openssh_keypair:
-    лкнowner: root
+    owner: root
     path: /root/.ssh/id_rsa
   register: keypair
+
+- name: Check keypair "{{ ansible_hostname }}"
+  debug: msg="{{ keypair }}"
 
 - name: Set authorized key taken from file
   authorized_key:
