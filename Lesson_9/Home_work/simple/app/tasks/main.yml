@@ -26,10 +26,10 @@
 
 - name: Transfer artifact from Build to App
   synchronize:
-    src: /usr/local/tomcat/target/*.war
+    src: /home/user/Solitaire/target/solitaire-1.1-SNAPSHOT.war
     dest: "{{tomcat_dir}}/webapps/solitaire.war"
   delegate_to: "{{ item }}"
-  loop: "{{ groups['builder'] }}"
+  loop: "{{ groups['build'] }}"
   notify:
     - restart tomcat
 
