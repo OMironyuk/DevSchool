@@ -7,7 +7,7 @@
     - build
     - role: ssh_auth
       vars:
-        host_name: app
+        host_name: 84.252.141.26
 
 - name: Run app
   hosts: app
@@ -17,5 +17,5 @@
     - app
     - role: ssh_auth
       vars:
-        host_name: app
+        host_name: 84.252.137.59
 

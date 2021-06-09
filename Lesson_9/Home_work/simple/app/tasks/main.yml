@@ -25,9 +25,11 @@
     - daemon-reload
 
 - name: Transfer artifact from Build to App
-  copy:
-    src: /home/user/solitaire.war
-    dest: "{{tomcat_dir}}/webapps/"
+  synchronize:
+    src: /usr/local/tomcat/target/*.war
+    dest: "{{tomcat_dir}}/webapps/solitaire.war"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['builder'] }}"
   notify:
     - restart tomcat
 
