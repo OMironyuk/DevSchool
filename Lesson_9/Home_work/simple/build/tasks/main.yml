@@ -18,9 +18,3 @@
   args:
     chdir: "{{app_repo_dir}}"
 
-- name: Copy artifact from Build to local
-  fetch:
-    src: "{{app_repo_dir}}/target/solitaire-1.1-SNAPSHOT.war"
-    dest: /home/user/solitaire.war
-    flat: yes
-

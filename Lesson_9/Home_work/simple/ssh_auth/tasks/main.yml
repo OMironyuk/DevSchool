@@ -6,9 +6,6 @@
     path: /root/.ssh/id_rsa
   register: keypair
 
-- name: Check keypair "{{ ansible_hostname }}"
-  debug: msg="{{ keypair }}"
-
 - name: Set authorized key taken from file
   authorized_key:
     user: root
