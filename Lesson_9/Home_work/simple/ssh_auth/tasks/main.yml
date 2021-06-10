@@ -6,10 +6,14 @@
     path: /root/.ssh/id_rsa
   register: keypair
 
+- name: Check hostname
+  debug: msg="{{ delegate_host }}"
+
+
 - name: Set authorized key taken from file
   authorized_key:
     user: root
     state: present
     key: "{{ keypair.public_key }}"
-  delegate_to: "{{host_name}}"
-
+  delegate_to: "{{item}}"
+  loop: "{{ groups['delegate_host'] }}"
