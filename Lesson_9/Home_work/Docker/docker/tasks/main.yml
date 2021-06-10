@@ -1,21 +1,12 @@
 ---
 # tasks file for docker
-- name: Ensure python3 is present
+- name: Ensure required packages for Docker are present
   apt:
-    name: python3
+    name: "{{item}}"
     state: present
+  with_items:
+    - python3
+    - python3-pip
+    - docker
+    - docker.io
 
-- name: Ensure python3-pip is present
-  apt:
-    name: python3-pip
-    state: present
-
-- name: Enshure Docker SDK for Python is present
-  pip:
-    name: docker
-    state: present
-
-- name: Enshure docker package is present
-  apt:
-    name: docker.io
-    state: present
