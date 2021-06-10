@@ -16,4 +16,4 @@
     state: present
     key: "{{ keypair.public_key }}"
   delegate_to: "{{item}}"
-  loop: "{{ groups['delegate_host'] }}"
+  loop: "{{ groups[delegate_host] }}"
