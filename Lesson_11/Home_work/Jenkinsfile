@@ -5,7 +5,6 @@ pipeline {
         registryUrl 'http://10.129.0.41:8111'
         registryCredentialsId '1a5ec3e3-b900-493e-84c5-f58edf9ee355'
         args '-v /var/run/docker.sock:/var/run/docker.sock \
-              -v /var/lib/jenkins/workspace/test_hw/target:/home/target  \
               -v /tmp/maven/:/root/.m2 -u root:root'
         }
     }
@@ -19,6 +18,15 @@ pipeline {
         stage ('Build war'){
             steps {
             sh 'mvn package'
+            nexusArtifactUploader (
+                artifacts: [[artifactId: 'solitaire', classifier: '', file: 'target/solitaire-1.1-SNAPSHOT.war', type: 'war']], 
+                credentialsId: '1a5ec3e3-b900-493e-84c5-f58edf9ee355', 
+                groupId: 'devschool', 
+                nexusUrl: '10.129.0.41:8081', 
+                nexusVersion: 'nexus3', 
+                protocol: 'http', 
+                repository: 'maven-repo', 
+                version: 'v1')
             }
         }
         stage ('Make docker image') {
