@@ -1,0 +1,38 @@
+---
+version: '3.8'
+services:
+  db:
+    image: mysql:5.6.20
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: D9kroP*Ql
+      MYSQL_DATABASE: app42
+      MYSQL_USER: user1
+      MYSQL_PASSWORD: 123456
+    //ports:
+     // - "3306:3306"
+
+  build_image:
+    build:
+      context: .
+    volumes:
+      - type: volume
+        source: artefact
+        target: /home/user/App42PaaS-Java-MySQL-Sample/target/
+
+  app:
+    depends_on:
+      - db
+    image: tomcat:alpine
+    volumes:
+      - type: volume
+        source: artefact
+        target: /usr/local/tomcat/webapps/
+    ports:
+      - "8080:8080"
+
+volumes:
+  dbdata:
+  artefact:
