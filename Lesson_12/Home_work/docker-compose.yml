@@ -11,15 +11,13 @@ services:
       MYSQL_DATABASE: app42
       MYSQL_USER: user1
       MYSQL_PASSWORD: 123456
-#      ports:
-#      - "3306:3306"
 
   build_image:
     build:
       context: .
     volumes:
       - type: volume
-        source: artefact
+        source: artifact
         target: /home/user/App42/target/
 
   app:
@@ -28,11 +26,11 @@ services:
     image: tomcat:alpine
     volumes:
       - type: volume
-        source: artefact
+        source: artifact
         target: /usr/local/tomcat/webapps/
     ports:
       - "8080:8080"
 
 volumes:
   dbdata:
-  artefact:
+  artifact:
