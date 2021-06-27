@@ -11,8 +11,8 @@ services:
       MYSQL_DATABASE: app42
       MYSQL_USER: user1
       MYSQL_PASSWORD: 123456
-    //ports:
-     // - "3306:3306"
+#      ports:
+#      - "3306:3306"
 
   build_image:
     build:
