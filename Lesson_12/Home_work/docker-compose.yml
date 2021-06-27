@@ -20,7 +20,7 @@ services:
     volumes:
       - type: volume
         source: artefact
-        target: /home/user/App42PaaS-Java-MySQL-Sample/target/
+        target: /home/user/App42/target/
 
   app:
     depends_on:
