@@ -17,4 +17,10 @@
           cidr_ip: 0.0.0.0/0
 
   - name: Create EC2 instance
-
+    ec2:
+      instance_type: t2.micro
+      image: ami-05f7491af5eef733a
+      wait: yes
+      group: EC2SecGroup
+      count: 2
+      assign_public_ip: yes
