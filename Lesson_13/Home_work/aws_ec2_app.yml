@@ -1,5 +1,5 @@
 ---
--name: Create AWS EC2 Instance
+- name: Create AWS EC2 Instance
 - hosts: localhost
   gather_facts: false
 
