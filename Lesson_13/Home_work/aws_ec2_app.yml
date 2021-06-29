@@ -1,6 +1,7 @@
 ---
 - name: Create AWS EC2 Instance
 - hosts: localhost
+  connection: local
   gather_facts: false
 
   tasks:
@@ -22,5 +23,6 @@
       image: ami-05f7491af5eef733a
       wait: yes
       group: EC2SecGroup
+      region: eu-central-1
       count: 2
-      assign_public_ip: yes
+      #assign_public_ip: yes
