@@ -1,0 +1,20 @@
+---
+-name: Create AWS EC2 Instance
+- hosts: localhost
+  gather_facts: false
+
+  tasks:
+  - name: Create securiy group with port 22 and 8080 open to 0.0.0.0/0
+    ec2_group:
+      name: EC2SecGroup
+      description: security grop for build and prod instance
+      region: eu-central-1
+      rules:
+        - proto: tcp
+          ports:
+            - 22
+            - 8080
+          cidr_ip: 0.0.0.0/0
+
+  - name: Create EC2 instance
+
