@@ -24,11 +24,23 @@
       wait: yes
       group: EC2SecGroup
       region: eu-central-1
-      count: 2
       instance_tags:
         Name: '{{ item }}'
     loop:
       - build
       - prod
+
+  - name: Add new instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: launched
+    loop: "{{ ec2.instances }}"
+
+  - name: Wait for SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 320
+    loop: "{{ ec2.instances }}"
 
       #assign_public_ip: yes
