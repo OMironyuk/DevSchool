@@ -25,4 +25,10 @@
       group: EC2SecGroup
       region: eu-central-1
       count: 2
+      instance_tags:
+        Name: '{{ item }}'
+    loop:
+      - build
+      - prod
+
       #assign_public_ip: yes
