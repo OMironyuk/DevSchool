@@ -37,13 +37,13 @@
     add_host:
       hostname: "{{ item.instances[0].public_ip }}"
       groupname: '{{ hosts }}'
-    loop: "{{ ec2.result }}"
+    loop: "{{ ec2.results }}"
 
   - name: Wait for SSH to come up
     delegate_to: "{{ item.instances[0].public_dns_name }}"
     wait_for_connection:
       delay: 60
       timeout: 320
-    loop: "{{ ec2.result }}"
+    loop: "{{ ec2.results }}"
 
       #assign_public_ip: yes
