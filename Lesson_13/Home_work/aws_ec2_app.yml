@@ -4,7 +4,7 @@
   connection: local
   gather_facts: false
   vars:
-    hosts:
+    ec2hosts:
       - build
       - prod
 
@@ -31,12 +31,18 @@
       region: eu-central-1
       instance_tags:
         Name: '{{ item }}'
-    loop: '{{ hosts }}'
+    loop: '{{ ec2hosts }}'
+    register: ec2
+
+  - name: Print ec2_public_ip
+    debug:
+      msg: '{{item.instances[0].public_ip}}'
+    loop: "{{ ec2.results }}"
 
   - name: Add new instance to host group
     add_host:
       hostname: "{{ item.instances[0].public_ip }}"
-      groupname: '{{ hosts }}'
+      groupname: '{{ ec2hosts }}'
     loop: "{{ ec2.results }}"
 
   - name: Wait for SSH to come up
