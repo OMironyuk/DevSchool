@@ -72,6 +72,10 @@
       search_regex: OpenSSH
     loop: "{{ ec2_build.tagged_instances | union (ec2_prod.tagged_instances)}}"
 
+  - name: "Retrieve an authentication token"
+    command: "aws ecr get-login-password --region eu-central-1"
+    register: awsrepo
+
 
 - name: create build image
   hosts: build
@@ -105,11 +109,6 @@
       path: /home/user/build-image
       state: directory
 
-#  - name: Enshure AWSCLI for Python is present
-#    pip:
-#      name: awscli
-#      state: present
-
   - name: copy Dockerfile
     copy:
       src: ./build-image/Dockerfile
@@ -117,16 +116,18 @@
 
   - name: docker login
     docker_login:
-      username: ommironyuk
-      password: 9b1397e7-faab-464e-982e-062a1fac6eed
-      email: 1234m4321@mail.ru
+      registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
+      username: AWS
+      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
+  - name: ecr-repo
+    ecs_ecr:
+      name: solitaire
 
   - name: Build an image
     docker_image:
       path: /home/user/build-image/
-      name: solitaire:v1
-      repository: public.ecr.aws/t4n5o4a4/solitaire:v1
+      name: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
       push: yes
 
 - name: create build image
@@ -156,10 +157,16 @@
       name: docker.io
       state: present
 
+  - name: docker login
+    docker_login:
+      registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
+      username: AWS
+      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
+
   - name: Start container
     docker_container:
       name: solitaire
-      image: public.ecr.aws/t4n5o4a4/omironyuk/solitaire:v1
+      image: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
       ports:
         - "8080:8080"
       state: started
