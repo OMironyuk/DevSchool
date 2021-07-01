@@ -3,13 +3,14 @@
   hosts: localhost
   connection: local
   gather_facts: false
-  vars:
-    ec2hosts:
-      - build
-      - prod
-
 
   tasks:
+  - name: Creatr a kay pair based on my ssh key
+    ec2_key:
+      name: id_rsa
+      key_material: '{{ item }}'
+    with_file: ~/.ssh/id_rsa.pub
+
   - name: Create securiy group with port 22 and 8080 open to 0.0.0.0/0
     ec2_group:
       name: EC2SecGroup
@@ -26,30 +27,139 @@
     ec2:
       instance_type: t2.micro
       image: ami-05f7491af5eef733a
+      key_name: id_rsa
       wait: yes
       group: EC2SecGroup
       region: eu-central-1
       instance_tags:
-        Name: '{{ item }}'
-    loop: '{{ ec2hosts }}'
-    register: ec2
+        Name: build
+      exact_count: 1
+      count_tag:
+        Name: build
+    register: ec2_build
 
-  - name: Print ec2_public_ip
-    debug:
-      msg: '{{item.instances[0].public_ip}}'
-    loop: "{{ ec2.results }}"
+  - name: Create EC2 instance
+    ec2:
+      instance_type: t2.micro
+      image: ami-05f7491af5eef733a
+      key_name: id_rsa
+      wait: yes
+      group: EC2SecGroup
+      region: eu-central-1
+      instance_tags:
+        Name: prod
+      exact_count: 1
+      count_tag:
+        Name: prod
+    register: ec2_prod
 
   - name: Add new instance to host group
     add_host:
-      hostname: "{{ item.instances[0].public_ip }}"
-      groupname: '{{ ec2hosts }}'
-    loop: "{{ ec2.results }}"
+      hostname: "{{ item.public_ip }}"
+      groupname: build
+    loop: "{{ ec2_build.tagged_instances }}"
 
-  - name: Wait for SSH to come up
-    delegate_to: "{{ item.instances[0].public_dns_name }}"
-    wait_for_connection:
-      delay: 60
-      timeout: 320
-    loop: "{{ ec2.results }}"
+  - name: Add new instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: prod
+    loop: "{{ ec2_prod.tagged_instances }}"
 
-      #assign_public_ip: yes
+  - name: Wait for ssh server to be running on build_instance
+    wait_for:
+      host: "{{ item.public_ip }}"
+      port: 22
+      search_regex: OpenSSH
+    loop: "{{ ec2_build.tagged_instances | union (ec2_prod.tagged_instances)}}"
+
+
+- name: create build image
+  hosts: build
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+  - name: Ensure python3 is present
+    apt:
+      name: python3
+      state: present
+      update_cache: yes
+
+  - name: Ensure python3-pip is present
+    apt:
+      name: python3-pip
+      state: present
+
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker
+      state: present
+
+  - name: Enshure docker package is present
+    apt:
+      name: docker.io
+      state: present
+
+  - name: create build directory
+    file:
+      path: /home/user/build-image
+      state: directory
+
+#  - name: Enshure AWSCLI for Python is present
+#    pip:
+#      name: awscli
+#      state: present
+
+  - name: copy Dockerfile
+    copy:
+      src: ./build-image/Dockerfile
+      dest: /home/user/build-image/
+
+  - name: docker login
+    docker_login:
+      username: ommironyuk
+      password: 9b1397e7-faab-464e-982e-062a1fac6eed
+      email: 1234m4321@mail.ru
+
+
+  - name: Build an image
+    docker_image:
+      path: /home/user/build-image/
+      name: solitaire:v1
+      repository: public.ecr.aws/t4n5o4a4/solitaire:v1
+      push: yes
+
+- name: create build image
+  hosts: prod
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+  - name: Ensure python3 is present
+    apt:
+      name: python3
+      state: present
+      update_cache: yes
+
+  - name: Ensure python3-pip is present
+    apt:
+      name: python3-pip
+      state: present
+
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker
+      state: present
+
+  - name: Enshure docker package is present
+    apt:
+      name: docker.io
+      state: present
+
+  - name: Start container
+    docker_container:
+      name: solitaire
+      image: public.ecr.aws/t4n5o4a4/omironyuk/solitaire:v1
+      ports:
+        - "8080:8080"
+      state: started
