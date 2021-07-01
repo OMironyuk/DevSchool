@@ -77,39 +77,32 @@
     register: awsrepo
 
 
-- name: create build image
+- name: Create build image
   hosts: build
   remote_user: ubuntu
   become: yes
 
   tasks:
-  - name: Ensure python3 is present
+  - name: Ensure required packages is present
     apt:
-      name: python3
+      name:
+        - python3
+        - python3-pip
+        - docker.io
       state: present
       update_cache: yes
-
-  - name: Ensure python3-pip is present
-    apt:
-      name: python3-pip
-      state: present
 
   - name: Enshure Docker SDK for Python is present
     pip:
       name: docker
       state: present
 
-  - name: Enshure docker package is present
-    apt:
-      name: docker.io
-      state: present
-
-  - name: create build directory
+  - name: Create build directory
     file:
       path: /home/user/build-image
       state: directory
 
-  - name: copy Dockerfile
+  - name: Copy Dockerfile
     copy:
       src: ./build-image/Dockerfile
       dest: /home/user/build-image/
@@ -120,7 +113,7 @@
       username: AWS
       password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
-  - name: ecr-repo
+  - name: Create ECR repository
     ecs_ecr:
       name: solitaire
 
@@ -130,40 +123,33 @@
       name: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
       push: yes
 
-- name: create build image
+- name: Create build image
   hosts: prod
   remote_user: ubuntu
   become: yes
 
   tasks:
-  - name: Ensure python3 is present
+  - name: Ensure required packages is present
     apt:
-      name: python3
+      name:
+        - python3
+        - python3-pip
+        - docker.io
       state: present
       update_cache: yes
-
-  - name: Ensure python3-pip is present
-    apt:
-      name: python3-pip
-      state: present
 
   - name: Enshure Docker SDK for Python is present
     pip:
       name: docker
       state: present
 
-  - name: Enshure docker package is present
-    apt:
-      name: docker.io
-      state: present
-
-  - name: docker login
+  - name: Docker login
     docker_login:
       registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
       username: AWS
       password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
-  - name: Start container
+  - name: Run container
     docker_container:
       name: solitaire
       image: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
