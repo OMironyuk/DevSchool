@@ -43,8 +43,23 @@ resource "yandex_compute_instance" "build" {
   }
 
   metadata = {
-    foo      = "bar"
+    foo = "bar"
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y git maven",
+      "sudo mkdir -p /home/user/ && cd /home/user/ && sudo git clone https://github.com/boxfuse/boxfuse-sample-java-war-hello.git",
+      "cd /home/user/boxfuse-sample-java-war-hello && sudo mvn package"
+    ]
+  connection {
+    type     = "ssh"
+    user     = "ubuntu"
+    private_key = file("~/.ssh/id_rsa")
+    host     = "${yandex_compute_instance.build.network_interface.0.nat_ip_address}"
+  }
   }
 }
 // Unmark if need to create network and subnet
