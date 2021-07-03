@@ -16,23 +16,30 @@ provider "yandex" {
 }
 resource "yandex_compute_instance" "build" {
   name        = "devs14-build"
-  platform_id = "standard-v1"
+  platform_id = "standard-v2"
   zone        = "ru-central1-b"
 
   resources {
     cores  = 2
-    memory = 4
+    memory = 2
     core_fraction = 20
+  }
+
+  scheduling_policy {
+    preemptible = true
   }
 
   boot_disk {
     initialize_params {
       image_id = "fd83klic6c8gfgi40urb"
+      size = 10
     }
   }
 
   network_interface {
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
+    subnet_id = "e2la11hhlvdpko78kgor"
+    // subnet_id = "${yandex_vpc_subnet.default-ru-central1-b.id}" - unmark if network and subnet are created
+    nat = true
   }
 
   metadata = {
@@ -40,10 +47,14 @@ resource "yandex_compute_instance" "build" {
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
   }
 }
-
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone       = "ru-central1-b"
-  network_id = "${yandex_vpc_network.foo.id}"
-}
+// Unmark if need to create network and subnet
+//resource "yandex_vpc_network" "default" {
+//  name = "default"
+//}
+//
+//resource "yandex_vpc_subnet" "default-ru-central1-b" {
+// zone = "ru-central1-b"
+//  name = "default-ru-central1-b"
+//  network_id = "${yandex_vpc_network.default.id}"
+//  v4_cidr_blocks = []
+//  }
