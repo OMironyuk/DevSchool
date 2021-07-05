@@ -18,6 +18,7 @@ variable "yandex_credentials" {
 
 variable "instance_parameters" {
   type = object({
+    name = string
     count = number
     cores = number
     memory = number
@@ -39,7 +40,7 @@ provider "yandex" {
 
 resource "yandex_compute_instance" "build" {
   count = var.instance_parameters.count
-  name = "devs15-${count.index+1}"
+  name = var.instance_parameters.name
   platform_id = "standard-v2"
   zone = "ru-central1-b"
 
