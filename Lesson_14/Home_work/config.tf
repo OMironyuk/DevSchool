@@ -7,24 +7,20 @@ terraform {
   }
 }
 
-variable "token" {
-  type    = string
-}
-variable "storage_access_key" {
-  type    = string
-}
-variable "storage_secret_key" {
-  type    = string
-}
+variable "yandex_credentials" {
+  type = object({
+    token = string
+    storage_access_key = string
+    storage_secret_key = string
+  })
 
 provider "yandex" {
-  token                    = var.token
- # service_account_key_file = "path_to_service_account_key_file"
+  token                    = var.yandex_credentials.token
   cloud_id                 = "b1gchdap7uflt27e7238"
   folder_id                = "b1g0a0qj4eah8vmbgdpb"
   zone                     = "ru-central1-b"
-  storage_access_key       = var.storage_access_key
-  storage_secret_key       = var.storage_secret_key
+  storage_access_key       = var.yandex_credentials.storage_access_key
+  storage_secret_key       = var.yandex_credentials.storage_secret_key
 }
 resource "yandex_compute_instance" "build" {
   name        = "devs14-build"
