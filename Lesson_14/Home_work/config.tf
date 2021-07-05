@@ -51,7 +51,6 @@ resource "yandex_compute_instance" "build" {
   }
 
   metadata = {
-    foo = "bar"
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
 
   }
@@ -129,7 +128,6 @@ resource "yandex_compute_instance" "prod" {
   }
 
   metadata = {
-    foo = "bar"
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
 
   }
@@ -137,6 +135,8 @@ resource "yandex_compute_instance" "prod" {
     inline = [
       "sudo apt update",
       "sudo apt install -y tomcat9",
+      "sudo usermod -aG tomcat ubuntu && newgrp tomcat"
+
     ]
     connection {
       type     = "ssh"
