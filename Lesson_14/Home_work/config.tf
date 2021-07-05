@@ -81,26 +81,29 @@ resource "yandex_compute_instance" "build" {
 //  network_id = "${yandex_vpc_network.default.id}"
 //  v4_cidr_blocks = []
 //  }
-resource "null_resource" "copy_artifact" {
-  provisioner "local-exec" {
-    command = "scp ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/user/boxfuse-sample-java-war-hello/target/hello-1.0.war /home/user/"
-  }
-  depends_on = [
-    yandex_compute_instance.build
-  ]
-}
+//resource "null_resource" "copy_artifact" {
+//  provisioner "local-exec" {
+//    command = "scp ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/user/boxfuse-sample-java-war-hello/target/hello-1.0.war /home/user/"
+//  }
+//  depends_on = [
+//    yandex_compute_instance.build
+//  ]
+//}
 
 resource "yandex_storage_bucket" "bucket" {
   bucket = "bucket-for-artifact"
   acl = "private"
 }
 resource "yandex_storage_object" "cute-cat-picture" {
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/user/boxfuse-sample-java-war-hello/target/hello-1.0.war /home/user/"
+  }
   bucket = "bucket-for-artifact"
   key    = "hello-1.0.war"
   //source =  "terraform.tfstate"
   //source = "ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/user/boxfuse-sample-java-war-hello/target/hello-1.0.war"
   source = "/home/user/hello-1.0.war"
   depends_on = [
-    null_resource.copy_artifact
+    yandex_compute_instance.build
   ]
 }
