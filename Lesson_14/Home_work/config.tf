@@ -13,7 +13,7 @@ variable "yandex_credentials" {
     storage_access_key = string
     storage_secret_key = string
   })
-
+}
 provider "yandex" {
   token                    = var.yandex_credentials.token
   cloud_id                 = "b1gchdap7uflt27e7238"
@@ -81,14 +81,26 @@ resource "yandex_compute_instance" "build" {
 //  network_id = "${yandex_vpc_network.default.id}"
 //  v4_cidr_blocks = []
 //  }
+resource "null_resource" "copy_artifact" {
+  provisioner "local-exec" {
+    command = "scp ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/user/boxfuse-sample-java-war-hello/target/hello-1.0.war /home/user/"
+  }
+  depends_on = [
+    yandex_compute_instance.build
+  ]
+}
+
 resource "yandex_storage_bucket" "bucket" {
   bucket = "bucket-for-artifact"
   acl = "private"
 }
 resource "yandex_storage_object" "cute-cat-picture" {
   bucket = "bucket-for-artifact"
-  key    = "profile"
+  key    = "hello-1.0.war"
   //source =  "terraform.tfstate"
   //source = "ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/user/boxfuse-sample-java-war-hello/target/hello-1.0.war"
-  source = "ubuntu@${yandex_compute_instance.build.network_interface.0.nat_ip_address}:/home/ubuntu/.ssh/.profile"
+  source = "/home/user/hello-1.0.war"
+  depends_on = [
+    null_resource.copy_artifact
+  ]
 }
