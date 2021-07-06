@@ -40,7 +40,7 @@ provider "yandex" {
 
 resource "yandex_compute_instance" "build" {
   count = var.instance_parameters.count
-  name = var.instance_parameters.name
+  name = "${var.instance_parameters.name}-${count.index+1}"
   platform_id = "standard-v2"
   zone = "ru-central1-b"
 
