@@ -13,7 +13,7 @@ resource "aws_instance" "build" {
   key_name = "${aws_key_pair.jenkins.id}"
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
   provisioner "local-exec" {
-    command = "sudo echo [build] ${aws_instance.build.public_ip} >> /etc/ansible/hosts"
+    command = "echo ${aws_instance.build.public_ip} >> ec2_build_public_ip"
   }
 }
 
