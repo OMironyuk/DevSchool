@@ -24,9 +24,10 @@ variable "instance_parameters" {
     memory = number
   })
 //  default =    {
-//      count = 2
-//      cores = 2
-//      memory = 2
+//    name = "devs-15-1"
+//    count = 2
+//    cores = 2
+//    memory = 2
 //  }
 }
 provider "yandex" {

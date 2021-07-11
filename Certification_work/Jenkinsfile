@@ -1,0 +1,18 @@
+pipeline {
+  agent any
+
+  stages {
+    stage ('clone git repo') {
+      steps {
+        git 'https://github.com/OMironyuk/Solitaire.git'
+      }
+    }
+    stage('TF Init&Plan') {
+      steps {
+        sh 'terraform init'
+        sh 'terraform plan'
+        sh 'terraform apply -auto-approve'
+      }
+    }
+  }
+}
