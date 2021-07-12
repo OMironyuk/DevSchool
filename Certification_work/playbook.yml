@@ -1,0 +1,115 @@
+---
+- name: Preparing for connection to ec2_instances
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+  - name: Add new instance to host group
+    add_host:
+      hostname: "{{ item }}"
+      groupname: build
+    with_file: "ec2_build_public_ip"
+    register: build_ip
+
+  - name: Add new instance to host group
+    add_host:
+      hostname: "{{ item }}"
+      groupname: prod
+    with_file: "ec2_prod_public_ip"
+    register: prod_ip
+
+#  - name: Check hostname
+#    debug: msg= "{{ ec2_buildpublic_ip }}"
+
+  - name: Wait for ssh server to be running on build_instance
+    wait_for:
+      host: "{{ item.add_host.host_name }}"
+      port: 22
+      search_regex: OpenSSH
+    loop: "{{ build_ip.results | union (prod_ip.results) }}"
+
+  - name: "Retrieve an authentication token"
+    command: "aws ecr get-login-password --region eu-central-1"
+    register: awsrepo
+
+- name: Create build image
+  hosts: build
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+  - name: Ensure required packages is present
+    apt:
+      name:
+        - python3
+        - python3-pip
+        - docker.io
+        - awscli
+      state: present
+      update_cache: yes
+
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker
+      state: present
+
+  - name: Create build directory
+    file:
+      path: /home/user/build-image
+      state: directory
+
+  - name: Copy Dockerfile
+    copy:
+      src: ./build-image/Dockerfile
+      dest: /home/user/build-image/
+
+  - name: docker login
+    docker_login:
+      registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
+      username: AWS
+      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
+
+  - name: Create ECR repository
+    ecs_ecr:
+      name: solitaire
+
+  - name: Build an image
+    docker_image:
+      path: /home/user/build-image/
+      name: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
+      push: yes
+
+- name: Create prod image
+  hosts: prod
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+  - name: Ensure required packages is present
+    apt:
+      name:
+        - python3
+        - python3-pip
+        - docker.io
+      state: present
+      update_cache: yes
+
+  - name: Enshure Docker SDK for Python is present
+    pip:
+      name: docker
+      state: present
+
+  - name: Docker login
+    docker_login:
+      registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
+      username: AWS
+      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
+
+  - name: Run container
+    docker_container:
+      name: solitaire
+      image: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
+      ports:
+        - "8080:8080"
+      state: started

@@ -4,7 +4,8 @@ pipeline {
   stages {
     stage ('clone git repo') {
       steps {
-        git 'https://github.com/OMironyuk/DevSchool.git'
+       // git 'https://github.com/OMironyuk/DevSchool.git'
+       sh 'pwd'
       }
     }
     stage('TF Init&Plan') {
@@ -12,6 +13,11 @@ pipeline {
         sh 'terraform init'
         sh 'terraform plan'
         sh 'terraform apply -auto-approve'
+      }
+    }
+    stage ('Provisioning build by ansible') {
+      steps {
+      ansiblePlaybook colorized: true, credentialsId: 'Jenkins-key', installation: 'Ansible', playbook: 'playbook.yml'
       }
     }
   }
