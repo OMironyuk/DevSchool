@@ -1,6 +1,6 @@
-resource "aws_security_group" "allow_ssh" {
-  name = "allow_ssh"
-  description = "Allow ss inbound traffic"
+resource "aws_security_group" "aws_sg" {
+  name = "allow_ssh_web"
+  description = "Allow ssh and web inbound traffic"
   // vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -11,7 +11,16 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks      = ["0.0.0.0/0"]
     //    ipv6_cidr_blocks = [aws_vpc.main.ipv6_cidr_block]
   }
-    egress {
+
+  ingress {
+    description = "WEB from VPC"
+    from_port = 8080
+    to_port = 8080
+    protocol = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    //    ipv6_cidr_blocks = [aws_vpc.main.ipv6_cidr_block]
+  }
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -20,5 +29,5 @@ resource "aws_security_group" "allow_ssh" {
 }
 
 output "sg_id" {
-  value = aws_security_group.allow_ssh.id
+  value = aws_security_group.aws_sg.id
 }

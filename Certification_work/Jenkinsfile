@@ -1,23 +1,31 @@
 pipeline {
   agent any
-
+  options {
+    ansiColor('xterm')  // Plugin AnsiColor
+  }
   stages {
     stage ('clone git repo') {
       steps {
-       // git 'https://github.com/OMironyuk/DevSchool.git'
-       sh 'pwd'
+        //git 'https://github.com/OMironyuk/DevSchool.git'
+        sh 'pwd'
       }
     }
     stage('TF Init&Plan') {
       steps {
-        sh 'terraform init'
-        sh 'terraform plan'
-        sh 'terraform apply -auto-approve'
+          dir('Certification_work') {
+           sh 'terraform init'
+           sh 'terraform plan'
+           sh 'terraform apply -auto-approve'
+          }
+        }
       }
-    }
     stage ('Provisioning build by ansible') {
       steps {
-      ansiblePlaybook colorized: true, credentialsId: 'Jenkins-key', installation: 'Ansible', playbook: 'playbook.yml'
+        dir('Certification_work') {
+          withAWS(credentials: 'AWS-creds', region: 'eu-central-1') {   //plugin Pipeline: AWS Steps
+            ansiblePlaybook colorized: true, credentialsId: 'jenkins-key', installation: 'Ansible', playbook: 'playbook.yml', disableHostKeyChecking: true, sudoUser: null  //plugin Ansible
+          }
+        }
       }
     }
   }

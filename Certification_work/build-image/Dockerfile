@@ -1,21 +1,16 @@
-FROM ubuntu:21.10 AS build
+FROM maven:3.8.1-jdk-8 AS build
 
-# set timezone
-ENV TZ=Europe/Moscow
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# install base soft
-RUN apt update && \
-    apt upgrade -y && \
-    apt install default-jdk maven git wget -y
-
-# get app
 WORKDIR /home/user/
-RUN git clone https://github.com/Artur-/Solitaire.git && \
-    cd /home/user/Solitaire/ && \
+
+#get app
+RUN git clone https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
+
+#build artifact
+RUN cd /home/user/boxfuse-sample-java-war-hello/ && \
     mvn package
+
 
 FROM tomcat:alpine
 
-COPY --from=build /home/user/Solitaire/target/*.war /usr/local/tomcat/webapps/solitaire.war
+COPY --from=build /home/user/boxfuse-sample-java-war-hello/target/*.war /usr/local/tomcat/webapps/hello.war
 

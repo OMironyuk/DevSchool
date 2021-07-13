@@ -10,7 +10,7 @@ resource "aws_instance" "build" {
   ami = "ami-05f7491af5eef733a"
   instance_type = "t2.micro"
   key_name = "${aws_key_pair.jenkins.id}"
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [aws_security_group.aws_sg.id]
   provisioner "local-exec" {
     command = "echo ${aws_instance.build.public_ip} > ec2_build_public_ip"
   }
@@ -19,12 +19,8 @@ resource "aws_instance" "prod" {
   ami = "ami-05f7491af5eef733a"
   instance_type = "t2.micro"
   key_name = "${aws_key_pair.jenkins.id}"
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [aws_security_group.aws_sg.id]
   provisioner "local-exec" {
     command = "echo ${aws_instance.prod.public_ip} > ec2_prod_public_ip"
-    environment = {
-      AWS_ACCESS_KEY_ID = var.aws_credentials.access_key
-      AWS_SECRET_ACCESS_KEY = var.aws_credentials.secret_key
-    }
   }
 }
