@@ -1,6 +1,6 @@
 resource "aws_security_group" "aws_sg" {
   name = "allow_ports"
-  description = "Allow ssh and web inbound traffic"
+  description = "Allow inbound traffic"
 
   dynamic "ingress" {
     for_each = var.allow_ports

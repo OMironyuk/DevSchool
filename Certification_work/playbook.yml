@@ -1,6 +1,6 @@
 ---
 - name: Preparing for connection to ec2_instances
-  hosts: localhost
+  hosts: jenkins
   connection: local
   gather_facts: false
 
@@ -22,7 +22,7 @@
 #  - name: Check hostname
 #    debug: msg= "{{ build_ip }}"
 
-  - name: Wait for ssh server to be running on build_instance
+  - name: Wait for ssh server to be running on created instances
     wait_for:
       host: "{{ item.add_host.host_name }}"
       port: 22
@@ -33,6 +33,10 @@
     command: "aws ecr get-login-password --region eu-central-1"
     register: awsrepo
 
+  - name: Get the current caller identity information
+    aws_caller_info:
+    register: caller_info
+
   - name: Create ECR repository
     ecs_ecr:
       name: solitaire
@@ -41,6 +45,7 @@
   hosts: build
   remote_user: ubuntu
   become: yes
+  gather_facts: false
 
   tasks:
   - name: Ensure required packages is present
@@ -69,20 +74,21 @@
 
   - name: docker login
     docker_login:
-      registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
+      registry_url: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com"
       username: AWS
-      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
+      password: "{{hostvars['jenkins']['awsrepo'].stdout}}"
 
   - name: Build an image
     docker_image:
       path: /home/user/build-image/
-      name: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
+      name: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1"
       push: yes
 
 - name: Create prod image
   hosts: prod
   remote_user: ubuntu
   become: yes
+  gather_facts: false
 
   tasks:
   - name: Ensure required packages is present
@@ -101,14 +107,14 @@
 
   - name: Docker login
     docker_login:
-      registry_url: 374296183065.dkr.ecr.eu-central-1.amazonaws.com
+      registry_url: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com"
       username: AWS
-      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
+      password: "{{hostvars['jenkins']['awsrepo'].stdout}}"
 
   - name: Run container
     docker_container:
       name: solitaire
-      image: 374296183065.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1
+      image: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1"
       ports:
         - "8080:8080"
       state: started
