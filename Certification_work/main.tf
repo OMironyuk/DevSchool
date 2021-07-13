@@ -1,6 +1,3 @@
-//resource "tls_private_key" "example" {
-//  algorithm = "RSA"
-//}
 
 resource "aws_key_pair" "jenkins" {
   key_name = "jenkins-key"
