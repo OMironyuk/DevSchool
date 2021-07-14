@@ -29,7 +29,7 @@
       search_regex: OpenSSH
     loop: "{{ build_ip.results | union (prod_ip.results) }}"
 
-  - name: "Retrieve an authentication token"
+  - name: Retrieve an authentication token
     command: "aws ecr get-login-password --region {{aws_region}}"
     register: awsrepo
 
@@ -39,9 +39,9 @@
 
   - name: Create ECR repository
     ecs_ecr:
-      name: solitaire
+      name: sudoku
 
-- name: Create build image
+- name: Create build environment
   hosts: build
   remote_user: ubuntu
   become: yes
@@ -59,7 +59,8 @@
 
   - name: Enshure Docker SDK for Python is present
     pip:
-      name: docker
+      name:
+        - docker
       state: present
 
   - name: Create build directory
@@ -69,22 +70,22 @@
 
   - name: Copy Dockerfile
     copy:
-      src: ./build-image/Dockerfile
+      src: ./Dockerfile
       dest: /home/user/build-image/
 
-  - name: docker login
+  - name: Login to Amazon ECR
     docker_login:
       registry_url: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
       username: AWS
       password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
-  - name: Build an image
+  - name: Build image and push to repository
     docker_image:
       path: /home/user/build-image/
-      name: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/solitaire:v1"
+      name: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/sudoku:v1"
       push: yes
 
-- name: Create prod image
+- name: Create prod environment
   hosts: prod
   remote_user: ubuntu
   become: yes
@@ -105,7 +106,7 @@
       name: docker
       state: present
 
-  - name: Docker login
+  - name: Login to Amazon ECR
     docker_login:
       registry_url: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
       username: AWS
@@ -113,8 +114,8 @@
 
   - name: Run container
     docker_container:
-      name: solitaire
-      image: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/solitaire:v1"
+      name: sudoku
+      image: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/sudoku:v1"
       ports:
         - "8080:8080"
       state: started

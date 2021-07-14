@@ -10,7 +10,3 @@ variable "allow_ports" {
   description = "List of Ports to open for server"
   type        = list(number)
 }
-
-variable "ssh_public_key" {
-  description = "Ssh public key"
-}
