@@ -1,6 +1,6 @@
 ---
 - name: Preparing for connection to ec2_instances
-  hosts: jenkins
+  hosts: localhost
   connection: local
   gather_facts: false
 
@@ -30,7 +30,7 @@
     loop: "{{ build_ip.results | union (prod_ip.results) }}"
 
   - name: "Retrieve an authentication token"
-    command: "aws ecr get-login-password --region eu-central-1"
+    command: "aws ecr get-login-password --region {{aws_region}}"
     register: awsrepo
 
   - name: Get the current caller identity information
@@ -74,14 +74,14 @@
 
   - name: docker login
     docker_login:
-      registry_url: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com"
+      registry_url: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
       username: AWS
-      password: "{{hostvars['jenkins']['awsrepo'].stdout}}"
+      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
   - name: Build an image
     docker_image:
       path: /home/user/build-image/
-      name: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1"
+      name: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/solitaire:v1"
       push: yes
 
 - name: Create prod image
@@ -107,14 +107,14 @@
 
   - name: Docker login
     docker_login:
-      registry_url: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com"
+      registry_url: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
       username: AWS
-      password: "{{hostvars['jenkins']['awsrepo'].stdout}}"
+      password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
   - name: Run container
     docker_container:
       name: solitaire
-      image: "{{hostvars['jenkins']['caller_info'].account}}.dkr.ecr.eu-central-1.amazonaws.com/solitaire:v1"
+      image: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/solitaire:v1"
       ports:
         - "8080:8080"
       state: started

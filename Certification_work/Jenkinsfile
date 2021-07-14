@@ -1,7 +1,10 @@
 pipeline {
   agent any
   options {
-    ansiColor('xterm')  // Plugin AnsiColor
+    ansiColor('xterm')
+  }
+  environment {
+    AWS_DEFAULT_REGION='eu-central-1' // Added variable
   }
   stages {
     stage ('clone git repo') {
@@ -13,20 +16,31 @@ pipeline {
     stage('TF Init&Plan') {
       steps {
           dir('Certification_work') {
-           sh 'terraform init'
-           sh 'terraform plan'
-           sh 'terraform apply -auto-approve'
+            withAWS(credentials: 'AWS-creds') {
+             sh 'terraform init'
+             sh 'terraform plan'
+             sh 'terraform apply -auto-approve'
+            }
           }
         }
       }
     stage ('Provisioning build by ansible') {
       steps {
         dir('Certification_work') {
-          withAWS(credentials: 'AWS-creds', region: 'eu-central-1') {   //plugin Pipeline: AWS Steps
-            ansiblePlaybook colorized: true, credentialsId: 'jenkins-key', installation: 'Ansible', playbook: 'playbook.yml', disableHostKeyChecking: true, sudoUser: null  //plugin Ansible
+          withAWS(credentials: 'AWS-creds') {
+            ansiblePlaybook colorized: true, credentialsId: 'jenkins-key', installation: 'Ansible', playbook: 'playbook.yml', disableHostKeyChecking: true, extras: "-e aws_region=\"${env.AWS_DEFAULT_REGION}\""
           }
         }
       }
     }
+    // stage('TF destroy') {
+    //   steps {
+    //     dir('Certification_work') {
+    //       withAWS(credentials: 'AWS-creds', region: 'eu-central-1') {
+    //         sh 'terraform destroy -auto-approve'
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
