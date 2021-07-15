@@ -1,15 +1,15 @@
 provider "aws" {}
 
 data "aws_ami" "latest_ubuntu" {
-  owners = ["099720109477"]
+  owners      = var.aws_ami_owners
   most_recent = true
   filter {
-    name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-*-20.04-amd64-server-*"]
+    name   = "name"
+    values = var.aws_ami_filter_value
   }
 }
 resource "aws_security_group" "aws_sg" {
-  name = "allow_ports"
+  name        = "allow_ports"
   description = "Allow inbound traffic"
 
   dynamic "ingress" {
@@ -29,30 +29,43 @@ resource "aws_security_group" "aws_sg" {
   }
 }
 resource "aws_key_pair" "jenkins" {
-  key_name = "jenkins-key"
+  key_name   = "jenkins-key"
   public_key = file("~/.ssh/id_rsa.pub") //var.ssh_public_key
 }
 resource "aws_instance" "build" {
-  ami = data.aws_ami.latest_ubuntu.id
-  instance_type = "t2.micro"
-  key_name = aws_key_pair.jenkins.id
+  ami                    = data.aws_ami.latest_ubuntu.id
+  instance_type          = var.ec2_istance_type
+  key_name               = aws_key_pair.jenkins.id
   vpc_security_group_ids = [aws_security_group.aws_sg.id]
   tags = {
     Name = "build"
   }
-  provisioner "local-exec" {
-    command = "echo ${aws_instance.build.public_ip} > ec2_build_public_ip" // save instance public ip to file
-  }
+//  provisioner "local-exec" {
+//    command = "echo ${aws_instance.build.public_ip} > ec2_build_public_ip" // save instance public ip to file
+//  }
 }
-resource "aws_instance" "prod" {
-  ami = data.aws_ami.latest_ubuntu.id
-  instance_type = "t2.micro"
-  key_name = aws_key_pair.jenkins.id
+resource "aws_instance" "stage" {
+  ami                    = data.aws_ami.latest_ubuntu.id
+  instance_type          = var.ec2_istance_type
+  key_name               = aws_key_pair.jenkins.id
   vpc_security_group_ids = [aws_security_group.aws_sg.id]
   tags = {
-    Name = "prod"
+    Name = "stage"
   }
-  provisioner "local-exec" {
-    command = "echo ${aws_instance.prod.public_ip} > ec2_prod_public_ip"  // save instance public ip to file
+//  provisioner "local-exec" {
+//    command = "echo ${aws_instance.stage.public_ip} > ec2_stage_public_ip" // save instance public ip to file
+//  }
+}
+
+data "template_file" "inventory" {
+  template = "${file("inventory.tpl")}"
+  vars = {
+    build_address = "${aws_instance.build.public_ip}"
+    stage_address = "${aws_instance.stage.public_ip}"
   }
+}
+
+resource "local_file" "inventory" {
+  filename = "inventory"
+  content = data.template_file.inventory.rendered
 }

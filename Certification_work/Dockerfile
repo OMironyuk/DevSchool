@@ -11,5 +11,5 @@ RUN cd /home/user/sudokusolver/ && \
 
 FROM tomcat:alpine
 
-COPY --from=build /home/user/sudokusolver/target/*.war /usr/local/tomcat/webapps/sudoku.war
+COPY --from=build /home/user/sudokusolver/target/*.war /usr/local/tomcat/webapps/
 

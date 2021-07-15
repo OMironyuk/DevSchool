@@ -5,29 +5,12 @@
   gather_facts: false
 
   tasks:
-  - name: Add new instance to host group
-    add_host:
-      hostname: "{{ item }}"
-      groupname: build
-    with_file: "ec2_build_public_ip"
-    register: build_ip
-
-  - name: Add new instance to host group
-    add_host:
-      hostname: "{{ item }}"
-      groupname: prod
-    with_file: "ec2_prod_public_ip"
-    register: prod_ip
-
-#  - name: Check hostname
-#    debug: msg= "{{ build_ip }}"
-
   - name: Wait for ssh server to be running on created instances
     wait_for:
-      host: "{{ item.add_host.host_name }}"
+      host: "{{ item }}"
       port: 22
       search_regex: OpenSSH
-    loop: "{{ build_ip.results | union (prod_ip.results) }}"
+    loop: "{{ groups['build'] | union (groups['stage'])}}"
 
   - name: Retrieve an authentication token
     command: "aws ecr get-login-password --region {{aws_region}}"
@@ -85,8 +68,8 @@
       name: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/sudoku:v1"
       push: yes
 
-- name: Create prod environment
-  hosts: prod
+- name: Create stage environment
+  hosts: stage
   remote_user: ubuntu
   become: yes
   gather_facts: false

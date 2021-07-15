@@ -1,7 +1,7 @@
 pipeline {
   agent any
   options {
-    ansiColor('xterm')
+    ansiColor('xterm')  // Plugin AnsiColor
   }
   environment {
     AWS_DEFAULT_REGION='eu-central-1' // Added variable
@@ -13,12 +13,11 @@ pipeline {
         sh 'pwd'
       }
     }
-    stage('TF Init&Plan') {
+    stage('TF Init&Apply') {
       steps {
           dir('Certification_work') {
-            withAWS(credentials: 'AWS-creds') {
+            withAWS(credentials: 'AWS-creds') { //plugin Pipeline: AWS Steps
              sh 'terraform init'
-             sh 'terraform plan'
              sh 'terraform apply -auto-approve'
             }
           }
@@ -28,28 +27,20 @@ pipeline {
       steps {
         dir('Certification_work') {
           withAWS(credentials: 'AWS-creds') {
-            ansiblePlaybook colorized: true, credentialsId: 'jenkins-key', installation: 'Ansible', playbook: 'playbook.yml', disableHostKeyChecking: true, extras: "-e aws_region=\"${env.AWS_DEFAULT_REGION}\""
+            ansiblePlaybook colorized: true, credentialsId: 'jenkins-key', installation: 'Ansible', playbook: 'playbook.yml', inventory: 'inventory', disableHostKeyChecking: true, extras: "-e aws_region=\"${env.AWS_DEFAULT_REGION}\"" //plugin Ansible
           }
         }
       }
     }
-    stage('TF destroy ec2 instance "build"') {
+    stage('TF destroy aws_instance "build"') {
       steps {
         dir('Certification_work') {
           withAWS(credentials: 'AWS-creds') {
-            sh 'terraform destroy -target aws_instance.build -auto-approve'
+          sh 'terraform destroy -target aws_instance.build -auto-approve'
+          sh 'terraform output app_url'
           }
         }
       }
     }
-    // stage('TF destroy') {
-    //   steps {
-    //     dir('Certification_work') {
-    //       withAWS(credentials: 'AWS-creds', region: 'eu-central-1') {
-    //         sh 'terraform destroy -auto-approve'
-    //       }
-    //     }
-    //   }
-    // }
   }
 }
