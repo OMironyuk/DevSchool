@@ -35,7 +35,7 @@
   gather_facts: false
 
   tasks:
-  - name: Ensure required packages is present
+  - name: Ensure required packages are present
     apt:
       name:
         - python3
@@ -79,7 +79,7 @@
   gather_facts: false
 
   tasks:
-  - name: Ensure required packages is present
+  - name: Ensure required packages are present
     apt:
       name:
         - python3
