@@ -16,7 +16,7 @@ pipeline {
     stage('TF Init&Apply') {
       steps {
           dir('Certification_work') {
-            withAWS(credentials: 'AWS-creds') { //plugin Pipeline: AWS Steps
+            withAWS(credentials: 'AWS-creds') { //plugin Pipeline: AWS Steps for AWS credentials
              sh 'terraform init'
              sh 'terraform apply -auto-approve'
             }

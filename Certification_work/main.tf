@@ -30,7 +30,7 @@ resource "aws_security_group" "aws_sg" {
 }
 resource "aws_key_pair" "jenkins" {
   key_name   = "jenkins-key"
-  public_key = file("~/.ssh/id_rsa.pub") //var.ssh_public_key
+  public_key = file("~/.ssh/id_rsa.pub")
 }
 resource "aws_instance" "build" {
   ami                    = data.aws_ami.latest_ubuntu.id
@@ -40,9 +40,6 @@ resource "aws_instance" "build" {
   tags = {
     Name = "build"
   }
-//  provisioner "local-exec" {
-//    command = "echo ${aws_instance.build.public_ip} > ec2_build_public_ip" // save instance public ip to file
-//  }
 }
 resource "aws_instance" "stage" {
   ami                    = data.aws_ami.latest_ubuntu.id
@@ -52,13 +49,10 @@ resource "aws_instance" "stage" {
   tags = {
     Name = "stage"
   }
-//  provisioner "local-exec" {
-//    command = "echo ${aws_instance.stage.public_ip} > ec2_stage_public_ip" // save instance public ip to file
-//  }
 }
 
 data "template_file" "inventory" {
-  template = "${file("inventory.tpl")}"
+  template = file("inventory.tpl")
   vars = {
     build_address = "${aws_instance.build.public_ip}"
     stage_address = "${aws_instance.stage.public_ip}"
@@ -67,5 +61,5 @@ data "template_file" "inventory" {
 
 resource "local_file" "inventory" {
   filename = "inventory"
-  content = data.template_file.inventory.rendered
+  content  = data.template_file.inventory.rendered
 }

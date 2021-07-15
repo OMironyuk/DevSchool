@@ -20,6 +20,10 @@
     aws_caller_info:
     register: caller_info
 
+  - name: Save full name of repository
+    set_fact:
+      repo_name: "{{caller_info.account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
+
   - name: Create ECR repository
     ecs_ecr:
       name: sudoku
@@ -58,14 +62,14 @@
 
   - name: Login to Amazon ECR
     docker_login:
-      registry_url: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
+      registry_url:  "{{hostvars['localhost'].repo_name}}"
       username: AWS
       password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
   - name: Build image and push to repository
     docker_image:
       path: /home/user/build-image/
-      name: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/sudoku:v1"
+      name: "{{hostvars['localhost'].repo_name}}/sudoku:v1"
       push: yes
 
 - name: Create stage environment
@@ -91,14 +95,14 @@
 
   - name: Login to Amazon ECR
     docker_login:
-      registry_url: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com"
+      registry_url: "{{hostvars['localhost'].repo_name}}"
       username: AWS
       password: "{{hostvars['localhost']['awsrepo'].stdout}}"
 
   - name: Run container
     docker_container:
       name: sudoku
-      image: "{{hostvars['localhost']['caller_info'].account}}.dkr.ecr.{{aws_region}}.amazonaws.com/sudoku:v1"
+      image: "{{hostvars['localhost'].repo_name}}/sudoku:v1"
       ports:
         - "8080:8080"
       state: started
