@@ -8,6 +8,7 @@ data "aws_ami" "latest_ubuntu" {
     values = var.aws_ami_filter_value
   }
 }
+
 resource "aws_security_group" "aws_sg" {
   name        = "allow_ports"
   description = "Allow inbound traffic"
@@ -28,10 +29,12 @@ resource "aws_security_group" "aws_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 resource "aws_key_pair" "jenkins" {
   key_name   = "jenkins-key"
   public_key = file("~/.ssh/id_rsa.pub")
 }
+
 resource "aws_instance" "build" {
   ami                    = data.aws_ami.latest_ubuntu.id
   instance_type          = var.ec2_istance_type
@@ -41,6 +44,7 @@ resource "aws_instance" "build" {
     Name = "build"
   }
 }
+
 resource "aws_instance" "stage" {
   ami                    = data.aws_ami.latest_ubuntu.id
   instance_type          = var.ec2_istance_type

@@ -2,6 +2,7 @@ variable "ec2_istance_type" {
   description = "Type of instance to start"
   default = "t2.micro"
 }
+
 variable "aws_ami_owners" {
   description = "The AWS account ID of the image owner"
   default = ["099720109477"]
