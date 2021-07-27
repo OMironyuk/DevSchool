@@ -1,0 +1,45 @@
+apiVersion: apps/v1 # до версии 1.9.0 нужно использовать apps/v1beta2
+kind: Deployment
+metadata:
+  name: tomcat-deployment
+spec:
+  selector:
+    matchLabels:
+      app: hello-world
+  replicas: 2 # запускает 2 пода, созданных по шаблону
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: hello-world
+        image: registry.hub.docker.com/ommironyuk/repo:124
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP 
+        - name: MY_POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+          
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", '(echo "Hello world<br>" && for I in $(printenv MY_NODE_NAME MY_POD_NAME MY_POD_NAMESPACE MY_POD_IP MY_POD_SERVICE_ACCOUNT); do echo "$I<br>"; done;) > /usr/local/tomcat/webapps/ROOT/index.html']                   
